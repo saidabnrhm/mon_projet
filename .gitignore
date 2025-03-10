@@ -1,0 +1,10 @@
+echo "AppData/
+*.log
+*.tmp
+*.bak
+*.swp
+.vscode/
+.ssh/
+node_modules/
+.DS_Store
+" > .gitignore
