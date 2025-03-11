@@ -1,0 +1,43 @@
+name: CI/CD Pipeline  # Nom du workflow
+
+on:
+  push:
+    branches:
+      - main  # Exécution du workflow à chaque push sur main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Système d'exploitation utilisé
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2  # Récupère le code du dépôt
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'  # Version Python
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt  # Installation des dépendances
+
+    - name: Run tests
+      run: |
+        pytest  # Exécution des tests (à adapter si besoin)
+
+    - name: Build Docker image
+      run: |
+        docker build -t my-docker-image:$GITHUB_SHA .  # Construction de l’image
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}  # Utilisation des identifiants secrets
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Push Docker image to Docker Hub
+      run: |
+        docker tag my-docker-image:$GITHUB_SHA myusername/my-docker-image:$GITHUB_SHA
+        docker push myusername/my-docker-image:$GITHUB_SHA
